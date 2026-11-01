@@ -1,6 +1,7 @@
 
 import re
 from pathlib import Path
+from collections import Counter
 
 def read_log_file(file_path):
     # Leitura do arquivo log e retorna as linhas
@@ -32,6 +33,61 @@ def parse_log_entry(log):
         "ip": ip,
     }
 
+def analyze_logs(logs):
+    # Analisa eventos SSH e gera estatísticas
+
+    stats = {
+        "total": 0,
+        "success": 0,
+        "failed": 0,
+        "failed_ips": Counter(),
+        "failed_users": Counter(),
+    }
+
+    for log in logs:
+        event = parse_log_entry(log)
+
+        if event is None:
+            continue
+
+        stats["total"] += 1
+
+        if event["status"] == "success":
+            stats["success"] += 1
+
+        elif event["status"] == "failed":
+            stats["failed"] += 1
+            stats["failed_ips"][event["ip"]] += 1
+            stats["failed_users"][event["username"]] += 1
+
+    return stats
+
+def print_report(stats):
+    # Exibe relatório de auth
+
+    print("\n=== SSH AUTHENTICATION REPORT ===")
+
+    print(f"Total de eventos: {stats['total']}")
+    print(f"Autenticações bem-sucedidas: {stats['success']}")
+    print(f"Tentativas malsucedidas: {stats['failed']}")
+
+    print("\n--- Falhas por endereço IP ---")
+
+    if stats["failed_ips"]:
+        for ip, count in stats["failed_ips"].most_common():
+            print(f"{ip}: {count} tentativa(s)")
+    else:
+        print("Nenhuma falha encontrada.")
+
+    print("\n--- Falhas por usuário ---")
+
+    if stats["failed_users"]:
+        for username, count in stats["failed_users"].most_common():
+            print(f"{username}: {count} tentativa(s)")
+    else:
+        print("Nenhuma falha encontrada.")
+
+
 def main():
     log_path = Path("examples/auth.log")
 
@@ -41,17 +97,10 @@ def main():
 
     logs = read_log_file(log_path)
 
-    print("=== LOG ANALYZER ===")
-    print(f"Arquivo: {log_path}")
-    print(f"Total de linhas: {len(logs)}\n")
+    stats = analyze_logs(logs)
 
-    for log in logs:
-        event = parse_log_entry(log)
-
-        if event:
-            print(event)
-        else:
-            print("Evento não reconhecido:", log.strip())
+    print(f"Arquivo analisado: {log_path}")
+    print_report(stats)
 
 if __name__ == "__main__":
     main()
