@@ -1,5 +1,6 @@
 
 import re
+import csv
 from pathlib import Path
 from collections import Counter
 
@@ -77,7 +78,7 @@ def print_report(stats):
         for ip, count in stats["failed_ips"].most_common():
             print(f"{ip}: {count} tentativa(s)")
     else:
-        print("Nenhuma falha encontrada.")
+        print("Nenhuma falha encontrada")
 
     print("\n--- Falhas por usuário ---")
 
@@ -85,14 +86,48 @@ def print_report(stats):
         for username, count in stats["failed_users"].most_common():
             print(f"{username}: {count} tentativa(s)")
     else:
-        print("Nenhuma falha encontrada.")
+        print("Nenhuma falha encontrada")
 
+def export_to_csv(stats, output_dir="output"):
+    # Exporta as estatísticas de auth para aquivos CSV
+
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    # Resumo geral das autenticações
+    summary_file = output_path / "auth_summary.csv"
+
+    with open(summary_file, "w", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
+
+        writer.writerow(["metric", "count"])
+        writer.writerow(["total_events", stats["total"]])
+        writer.writerow(["successful_authentications", stats["success"]])
+        writer.writerow(["failed_authentications", stats["failed"]])
+
+    # Quantidade de falhas por IP e usuário
+    failed_file = output_path / "failed_attempts.csv"
+
+    with open(failed_file, "w", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
+
+        writer.writerow(["type", "value", "count"])
+
+        for ip, count in stats["failed_ips"].most_common():
+            writer.writerow(["ip", ip, count])
+
+        for username, count in stats["failed_users"].most_common():
+            writer.writerow(["username", username, count])
+
+    print("\nRelatórios CSV gerados com sucesso")
+    print(f"- {summary_file}")
+    print(f"- {failed_file}")
 
 def main():
     log_path = Path("examples/auth.log")
 
     if not log_path.is_file():
-        print(f"Erro: arquivo '{log_path}' não encontrado.")
+        print(f"Erro: arquivo '{log_path}' não encontrado")
         return
 
     logs = read_log_file(log_path)
@@ -101,6 +136,8 @@ def main():
 
     print(f"Arquivo analisado: {log_path}")
     print_report(stats)
+
+    export_to_csv(stats)
 
 if __name__ == "__main__":
     main()
