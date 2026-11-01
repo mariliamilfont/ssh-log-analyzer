@@ -1,0 +1,11 @@
+
+Oct 30 10:15:22 server sshd[1201]: Failed password for admin from 192.168.1.10 port 52341 ssh2
+Oct 30 10:16:10 server sshd[1202]: Accepted password for user from 192.168.1.20 port 52342 ssh2
+Oct 30 10:17:05 server sshd[1203]: Failed password for root from 192.168.1.10 port 52343 ssh2
+Oct 30 10:18:30 server sshd[1204]: Failed password for admin from 192.168.1.15 port 52344 ssh2
+Oct 30 10:19:12 server sshd[1205]: Accepted publickey for developer from 192.168.1.25 port 52345 ssh2
+Oct 30 10:20:45 server sshd[1206]: Failed password for admin from 192.168.1.10 port 52346 ssh2
+Oct 30 10:21:33 server sshd[1207]: Failed password for root from 192.168.1.15 port 52347 ssh2
+Oct 30 10:22:18 server sshd[1208]: Accepted password for user from 192.168.1.20 port 52348 ssh2
+Oct 30 10:23:54 server sshd[1209]: Failed password for admin from 192.168.1.10 port 52349 ssh2
+Oct 30 10:24:07 server sshd[1210]: Accepted publickey for developer from 192.168.1.25 port 52350 ssh2
