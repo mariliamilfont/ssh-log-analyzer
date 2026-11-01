@@ -1,6 +1,7 @@
 
 import re
 import csv
+import argparse
 from pathlib import Path
 from collections import Counter
 
@@ -123,21 +124,46 @@ def export_to_csv(stats, output_dir="output"):
     print(f"- {summary_file}")
     print(f"- {failed_file}")
 
+def parse_arguments():
+    # Processa argumentos recebidos pela linha de comando
+
+    parser = argparse.ArgumentParser(
+        description="Analyze SSH authentication logs and generate reports"
+    )
+
+    parser.add_argument(
+        "log_file",
+        type=Path,
+        nargs="?",
+        default=Path("examples/auth.log"),
+        help="Path to the SSH log file (default: examples/auth.log)"
+    )
+
+    return parser.parse_args()
+
 def main():
-    log_path = Path("examples/auth.log")
+    args = parse_arguments()
+    log_path = args.log_file
 
     if not log_path.is_file():
         print(f"Erro: arquivo '{log_path}' não encontrado")
         return
 
-    logs = read_log_file(log_path)
+    try:
+        logs = read_log_file(log_path)
+    except (OSError, UnicodeError) as error:
+        print(f"Erro ao ler o arquivo: {error}")
+        return
 
     stats = analyze_logs(logs)
 
     print(f"Arquivo analisado: {log_path}")
     print_report(stats)
 
-    export_to_csv(stats)
+    try:
+        export_to_csv(stats)
+    except OSError as error:
+        print(f"Erro ao exportar os relatórios: {error}")
 
 if __name__ == "__main__":
     main()
