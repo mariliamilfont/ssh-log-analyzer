@@ -218,3 +218,11 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Sample logs
+!examples/
+!examples/*.log
+
+# Generated reports
+output/*
+!output/.gitkeep
